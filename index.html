@@ -53,6 +53,8 @@ header("Content-type: text/html; charset=utf-8");
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
       width: 180px !important; /* 加宽侧边栏到180px（原150px） */
+      /* 新增：默认隐藏移动端侧边栏 */
+      display: none;
     }
     #mySidebar .w3-bar-item {
       transition: background-color 0.2s ease;
@@ -219,6 +221,11 @@ header("Content-type: text/html; charset=utf-8");
       }
       #mySidebar {
         width: 200px !important; /* 移动端侧边栏宽度 */
+        position: fixed !important; /* 固定侧边栏位置 */
+        height: 100% !important; /* 占满屏幕高度 */
+        top: 0 !important;
+        right: 0 !important;
+        z-index: 1000 !important; /* 确保层级最高 */
       }
       #home {
         text-align: center !important;
@@ -235,6 +242,35 @@ header("Content-type: text/html; charset=utf-8");
         display: inline-block;
         margin: 8px 8px 0 8px;
       }
+      /* 大屏隐藏侧边栏控制按钮，小屏显示 */
+      .w3-hide-large {
+        display: block !important;
+      }
+      .w3-show-large {
+        display: none !important;
+      }
+    }
+
+    /* 大屏样式：显示侧边栏 */
+    @media (min-width: 993px) {
+      #mySidebar {
+        display: block !important;
+      }
+      .w3-hide-large {
+        display: none !important;
+      }
+    }
+
+    /* 遮罩层样式 */
+    #myOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
     }
 
     /* 平滑滚动 */
@@ -249,6 +285,36 @@ header("Content-type: text/html; charset=utf-8");
     }
   </style>
   <link rel="icon" type="image/png" href="images/icons.png">
+  
+  <!-- 新增：侧边栏控制函数（核心修复） -->
+  <script>
+    // 打开侧边栏
+    function w3_open() {
+      document.getElementById("mySidebar").style.display = "block";
+      document.getElementById("myOverlay").style.display = "block";
+    }
+
+    // 关闭侧边栏
+    function w3_close() {
+      document.getElementById("mySidebar").style.display = "none";
+      document.getElementById("myOverlay").style.display = "none";
+    }
+
+    // 页面加载完成后初始化
+    $(document).ready(function() {
+      // 点击遮罩层关闭侧边栏
+      $("#myOverlay").click(function() {
+        w3_close();
+      });
+      
+      // 移动端点击菜单项后自动关闭侧边栏
+      $("#mySidebar .w3-bar-item").click(function() {
+        if ($(window).width() <= 992) {
+          w3_close();
+        }
+      });
+    });
+  </script>
 </head>
 
 <body class="w3-content" style="max-width:1200px;margin:0 auto;background-color:#f9f9f9">
@@ -257,6 +323,8 @@ header("Content-type: text/html; charset=utf-8");
 <nav class="w3-sidebar w3-bar-block w3-collapse w3-top w3-right" style="z-index:3;" id="mySidebar">
   <div class="w3-container w3-display-container w3-padding-16">
     <h3><b>MT XIE</b></h3>
+    <!-- 新增：移动端关闭按钮 -->
+    <button onclick="w3_close()" class="w3-button w3-display-topright w3-text-white" style="font-size:20px;">&times;</button>
   </div>
   <div class="w3-padding-64 w3-text-light-grey w3-large" style="font-weight:bold">
     <a href="#home" class="w3-bar-item w3-button"><i class="fa fa-home"></i> Home</a>
@@ -271,19 +339,19 @@ header("Content-type: text/html; charset=utf-8");
 </nav>
 
 <!-- Top menu on small screens -->
-<header class="w3-bar w3-top w3-hide-large  w3-indigo w3-xlarge">
-   <a href="javascript:void(0)" class="w3-bar-item w3-button w3-padding-24 w3-indigo w3-ripple w3-left"  style="font-stretch: expanded;" onclick="w3_open()"> <b>&#9776;</font></b>
-   <!-- <img align="middle"; style="width: 40%;max-width: 100px" alt="profile photo" src="./images/equiv.png"> -->
+<header class="w3-bar w3-top w3-hide-large w3-indigo w3-xlarge">
+   <!-- 修复：移除多余的</font>标签和未闭合的div -->
+   <a href="javascript:void(0)" class="w3-bar-item w3-button w3-padding-24 w3-indigo w3-ripple w3-left" style="font-stretch: expanded;" onclick="w3_open()">
+     <b>&#9776;</b>
    </a>
-  </div>
- <div class="w3-bar-item w3-padding-24"> <b>Manting Xie </b> </div>
+   <div class="w3-bar-item w3-padding-24"> <b>Manting Xie </b> </div>
 </header>
-<!-- Overlay effect when opening sidebar on small screens -->
 
+<!-- Overlay effect when opening sidebar on small screens -->
 <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
 
 <!-- !PAGE CONTENT! -->
-<div class="w3-main" style="margin-left:150px">
+<div class="w3-main" style="margin-left:180px">
 
   <!-- Push down content on small screens -->
   <div class="w3-hide-large" style="margin-top:83px"></div>
